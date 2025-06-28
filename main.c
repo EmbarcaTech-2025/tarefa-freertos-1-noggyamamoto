@@ -22,3 +22,42 @@ TaskHandle_t handle_tarefa_buzzer = NULL;
 uint32_t tempo_ultimo_botao_a = 0;
 uint32_t tempo_ultimo_botao_b = 0;
 const uint32_t atraso_antirruido = 200; // 200 ms de debounce
+
+// Tarefa responsável por alternar as cores do LED RGB
+void tarefa_led(void *parametros) {
+    // Inicializa os pinos dos LEDs
+    gpio_init(PIN_VERMELHO);
+    gpio_init(PIN_VERDE);
+    gpio_init(PIN_AZUL);
+
+    gpio_set_dir(PIN_VERMELHO, GPIO_OUT);
+    gpio_set_dir(PIN_VERDE, GPIO_OUT);
+    gpio_set_dir(PIN_AZUL, GPIO_OUT);
+
+    uint8_t cor_atual = 0; // 0: vermelho, 1: verde, 2: azul
+
+    while (true) {
+        // Apaga todos os LEDs
+        gpio_put(PIN_VERMELHO, 0);
+        gpio_put(PIN_VERDE, 0);
+        gpio_put(PIN_AZUL, 0);
+
+        // Acende o LED correspondente à cor atual
+        switch(cor_atual) {
+            case 0:
+                gpio_put(PIN_VERMELHO, 1);
+                break;
+            case 1:
+                gpio_put(PIN_VERDE, 1);
+                break;
+            case 2:
+                gpio_put(PIN_AZUL, 1);
+                break;
+        }
+        // Alterna para a próxima cor
+        cor_atual = (cor_atual + 1) % 3;
+
+        // Aguarda 500 ms antes de trocar a cor
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
+}
