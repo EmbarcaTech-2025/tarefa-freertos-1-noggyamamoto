@@ -134,3 +134,14 @@ void tarefa_botoes(void *parametros) {
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
+
+// Função principal: inicializa o sistema e cria as tarefas
+int main() {
+    stdio_init_all(); // Inicializa a saída padrão (UART/USB)
+    // Cria as tarefas do FreeRTOS
+    xTaskCreate(tarefa_led, "Task LED", 256, NULL, 1, &handle_tarefa_led);
+    xTaskCreate(tarefa_buzzer, "Task Buzzer", 256, NULL, 1, &handle_tarefa_buzzer);
+    xTaskCreate(tarefa_botoes, "Task Botoes", 256, NULL, 2, NULL);
+    // Inicia o escalonador do FreeRTOS
+    vTaskStartScheduler();
+}
