@@ -23,6 +23,28 @@ uint32_t tempo_ultimo_botao_a = 0;
 uint32_t tempo_ultimo_botao_b = 0;
 const uint32_t atraso_antirruido = 200; // 200 ms de debounce
 
+// Tarefa responsável por acionar os buzzers periodicamente
+void tarefa_buzzer(void *parametros) {
+    // Inicializa os pinos dos buzzers
+    gpio_init(PIN_BUZZER1);
+    gpio_set_dir(PIN_BUZZER1, GPIO_OUT);
+
+    gpio_init(PIN_BUZZER2);
+    gpio_set_dir(PIN_BUZZER2, GPIO_OUT);
+
+    while (true) {
+        // Liga ambos os buzzers por 100 ms
+        gpio_put(PIN_BUZZER1, 1);
+        gpio_put(PIN_BUZZER2, 1);
+        vTaskDelay(pdMS_TO_TICKS(100));
+
+        // Desliga ambos os buzzers por 900 ms
+        gpio_put(PIN_BUZZER1, 0);
+        gpio_put(PIN_BUZZER2, 0);
+        vTaskDelay(pdMS_TO_TICKS(900));
+    }
+}
+
 // Tarefa responsável por alternar as cores do LED RGB
 void tarefa_led(void *parametros) {
     // Inicializa os pinos dos LEDs
@@ -61,3 +83,4 @@ void tarefa_led(void *parametros) {
         vTaskDelay(pdMS_TO_TICKS(500));
     }
 }
+
