@@ -17,3 +17,8 @@
 // Handles para as tarefas para suspender/retomar
 TaskHandle_t handle_tarefa_led = NULL;
 TaskHandle_t handle_tarefa_buzzer = NULL;
+
+// Variáveis para controle de debounce dos botões
+uint32_t tempo_ultimo_botao_a = 0;
+uint32_t tempo_ultimo_botao_b = 0;
+const uint32_t atraso_antirruido = 200; // 200 ms de debounce
