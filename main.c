@@ -25,16 +25,19 @@ const uint32_t atraso_antirruido = 200; // 200 ms de debounce
 
 // Tarefa responsável por acionar os buzzers periodicamente
 void tarefa_buzzer(void *parametros) {
+
     // Inicializa os pinos dos buzzers
     gpio_init(PIN_BUZZER1);
     gpio_set_dir(PIN_BUZZER1, GPIO_OUT);
     gpio_init(PIN_BUZZER2);
     gpio_set_dir(PIN_BUZZER2, GPIO_OUT);
+
     while (true) {
         // Liga ambos os buzzers por 100 ms
         gpio_put(PIN_BUZZER1, 1);
         gpio_put(PIN_BUZZER2, 1);
         vTaskDelay(pdMS_TO_TICKS(100));
+
         // Desliga ambos os buzzers por 900 ms
         gpio_put(PIN_BUZZER1, 0);
         gpio_put(PIN_BUZZER2, 0);
@@ -51,12 +54,15 @@ void tarefa_led(void *parametros) {
     gpio_set_dir(PIN_VERMELHO, GPIO_OUT);
     gpio_set_dir(PIN_VERDE, GPIO_OUT);
     gpio_set_dir(PIN_AZUL, GPIO_OUT);
+
     uint8_t cor_atual = 0; // 0: vermelho, 1: verde, 2: azul
+
     while (true) {
         // Apaga todos os LEDs
         gpio_put(PIN_VERMELHO, 0);
         gpio_put(PIN_VERDE, 0);
         gpio_put(PIN_AZUL, 0);
+
         // Acende o LED correspondente à cor atual
         switch(cor_atual) {
             case 0:
@@ -69,8 +75,10 @@ void tarefa_led(void *parametros) {
                 gpio_put(PIN_AZUL, 1);
                 break;
         }
+
         // Alterna para a próxima cor
         cor_atual = (cor_atual + 1) % 3;
+
         // Aguarda 500 ms antes de trocar a cor
         vTaskDelay(pdMS_TO_TICKS(500));
     }
@@ -87,10 +95,12 @@ void tarefa_botoes(void *parametros) {
     gpio_pull_up(PIN_BOTAO_B);
     bool tarefa_led_suspensa = false;
     bool tarefa_buzzer_suspensa = false;
+
     while (true) {
         // Verifica se o botão A foi pressionado (nível baixo)
         if (gpio_get(PIN_BOTAO_A) == 0) {
             uint32_t tempo_atual = to_ms_since_boot(get_absolute_time());
+
             // Verifica debounce
             if ((tempo_atual - tempo_ultimo_botao_a) > atraso_antirruido) {
                 tempo_ultimo_botao_a = tempo_atual;
@@ -109,13 +119,13 @@ void tarefa_botoes(void *parametros) {
                 tarefa_led_suspensa = !tarefa_led_suspensa;
             }
         }
+
         // Verifica se o botão B foi pressionado (nível baixo)
         if (gpio_get(PIN_BOTAO_B) == 0) {
             uint32_t tempo_atual = to_ms_since_boot(get_absolute_time());
             // Verifica debounce
             if ((tempo_atual - tempo_ultimo_botao_b) > atraso_antirruido) {
                 tempo_ultimo_botao_b = tempo_atual;
-
                 // Alterna entre suspender e retomar a tarefa do buzzer
                 if (tarefa_buzzer_suspensa) {
                     vTaskResume(handle_tarefa_buzzer);
@@ -130,6 +140,7 @@ void tarefa_botoes(void *parametros) {
                 tarefa_buzzer_suspensa = !tarefa_buzzer_suspensa;
             }
         }
+
         // Pequeno atraso para evitar polling excessivo
         vTaskDelay(pdMS_TO_TICKS(10));
     }
@@ -138,10 +149,12 @@ void tarefa_botoes(void *parametros) {
 // Função principal: inicializa o sistema e cria as tarefas
 int main() {
     stdio_init_all(); // Inicializa a saída padrão (UART/USB)
+
     // Cria as tarefas do FreeRTOS
     xTaskCreate(tarefa_led, "Task LED", 256, NULL, 1, &handle_tarefa_led);
     xTaskCreate(tarefa_buzzer, "Task Buzzer", 256, NULL, 1, &handle_tarefa_buzzer);
     xTaskCreate(tarefa_botoes, "Task Botoes", 256, NULL, 2, NULL);
+    
     // Inicia o escalonador do FreeRTOS
     vTaskStartScheduler();
 }
