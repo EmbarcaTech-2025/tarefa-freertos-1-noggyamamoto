@@ -97,14 +97,14 @@ void tarefa_botoes(void *parametros) {
                 // Alterna entre suspender e retomar a tarefa do LED
                 if (tarefa_led_suspensa) {
                     vTaskResume(handle_tarefa_led);
-                    printf("Tarefa LED retomada\n");
+                    printf("Task LED retomada\n");
                 } else {
                     vTaskSuspend(handle_tarefa_led);
                     // Garante que todos os LEDs estejam apagados ao suspender
                     gpio_put(PIN_VERMELHO, 0);
                     gpio_put(PIN_VERDE, 0);
                     gpio_put(PIN_AZUL, 0);
-                    printf("Tarefa LED suspensa\n");
+                    printf("Task LED suspensa\n");
                 }
                 tarefa_led_suspensa = !tarefa_led_suspensa;
             }
